@@ -1,0 +1,50 @@
+[
+  {
+    "userid": 1,
+    "name": "James Banus",
+    "email": "jamesbanus@hotmail.com",
+    "password": "password"
+  },
+  {
+    "userid": 2,
+    "name": "Joe Smith",
+    "email": "joesmith@email.com",
+    "password": "password"
+  },
+  {
+    "userid": 3,
+    "name": "Joe Smith",
+    "email": "joesmith@email.com",
+    "password": "password"
+  },
+  {
+    "userid": 4,
+    "name": "Joe Smith",
+    "email": "joesmith@email.com",
+    "password": "password"
+  },
+  {
+    "userid": 5,
+    "name": "Joe Smith",
+    "email": "joesmith@email.com",
+    "password": "password"
+  },
+  {
+    "userid": 6,
+    "name": "Joe Smith",
+    "email": "joesmith@email.com",
+    "password": "password"
+  },
+  {
+    "userid": 7,
+    "name": "Joe Smith",
+    "email": "joesmith@email.com",
+    "password": "password"
+  },
+  {
+    "userid": 8,
+    "name": "Joe Smith",
+    "email": "joesmith@email.com",
+    "password": "password"
+  }
+]
