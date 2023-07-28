@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const { genRandomString } = require("../utils/maths");
+const asyncMySQL = require("../mysql/connection");
 
 //add a user
 
-router.post("/user", (req, res) => {
+router.post("/user", async (req, res) => {
   const { name, email, password } = req.body;
 
   //check contents
@@ -19,19 +20,16 @@ router.post("/user", (req, res) => {
     return;
   }
 
-  //check for duplicates
-  const indexOf = req.userData.findIndex((item) => {
-    return item.name === name || item.email === email;
-  });
-
-  if (indexOf > -1) {
-    res.send({ status: 0, reason: "Duplicate Entry" });
+  try {
+    await asyncMySQL(`INSERT INTO users
+                      (name, email, password) 
+                        VALUES 
+                          ("${name}", "${email}", "${password}")`);
+    res.send({ status: 1 });
+  } catch (error) {
+    res.send({ status: 0, reason: "Duplicate entry" });
     return;
   }
-
-  req.userData.push({ userid: genRandomString(), name, email, password });
-
-  res.send({ status: 1 });
 });
 
 //add a favourite

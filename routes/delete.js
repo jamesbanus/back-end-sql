@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
+const asyncMySQL = require("../mysql/connection");
 
-router.delete("/user/:id", (req, res) => {
+router.delete("/user/:id", async (req, res) => {
   const userid = Number(req.params.id);
 
   //defensive checks
@@ -11,24 +12,21 @@ router.delete("/user/:id", (req, res) => {
     return;
   }
 
-  // copy and find specific user
-  const indexOf = req.userData.findIndex((item) => {
-    return item.userid === userid;
-  });
+  // delete user
+  await asyncMySQL(
+    `DELETE
+      FROM users 
+        WHERE id LIKE ${userid};`
+  );
 
-  if (indexOf < 0) {
-    res.send({ status: 0, reason: "userid not found, potentially deleted" });
-    return;
-  }
-
-  req.userData.splice(indexOf, 1);
-
-  for (let i = req.userActions.length - 1; i >= 0; i--) {
-    if (userid === req.userActions[i].userid) {
-      req.userActions.splice(i, 1);
-    }
-  }
   res.send({ status: 1 });
+
+  // for (let i = req.userActions.length - 1; i >= 0; i--) {
+  //   if (userid === req.userActions[i].userid) {
+  //     req.userActions.splice(i, 1);
+  //   }
+  // }
+  // res.send({ status: 1 });
 });
 
 module.exports = router;

@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const asyncMySQL = require("../mysql/connection");
 
 //update user
-router.patch("/user/:id", (req, res) => {
+router.patch("/user/:id", async (req, res) => {
   const userid = Number(req.params.id);
 
   //check userid is a number
@@ -13,27 +14,28 @@ router.patch("/user/:id", (req, res) => {
 
   const { name, email, password } = req.body;
 
-  const indexOf = req.userData.findIndex((item) => {
-    return item.userid === userid;
-  });
+  //repetition for security
+  try {
+    if (name && typeof name === "string") {
+      await asyncMySQL(
+        `UPDATE users SET name = "${name}" WHERE id LIKE "${userid}";`
+      );
+    }
 
-  // check user exists
-  if (indexOf === -1) {
-    res.send({ status: 0, reason: "userid not found" });
+    if (email && typeof email === "string") {
+      await asyncMySQL(
+        `UPDATE users SET email = "${email}" WHERE id LIKE "${userid}";`
+      );
+    }
+
+    if (password) {
+      await asyncMySQL(
+        `UPDATE users SET password = "${password}" WHERE id LIKE "${userid}";`
+      );
+    }
+  } catch (error) {
+    res.send({ status: 0, reason: error.sqlMessage });
     return;
-  }
-
-  //repitition for security
-  if (name && typeof name === "string") {
-    req.userData[indexOf].name = name;
-  }
-
-  if (email && typeof email === "string") {
-    req.userData[indexOf].email = email;
-  }
-
-  if (password) {
-    req.userData[indexOf].password = password;
   }
 
   res.send({ status: 1 });

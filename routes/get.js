@@ -1,31 +1,43 @@
 const express = require("express");
 const router = express.Router();
+const asyncMySQL = require("../mysql/connection");
 
 //get all users
-// router.get("/users", (req, res) => {
-//   res.send({ status: 1, users: req.userData });
-// });
+router.get("/users", async (req, res) => {
+  const results = await asyncMySQL(
+    `SELECT *
+      FROM users;`
+  );
+
+  res.send({ status: 1, results });
+});
 
 //get user by id
-router.get("/user/:id", (req, res) => {
+router.get("/user/:id", async (req, res) => {
   const userid = Number(req.params.id);
+
   //defensive checks
+
   //check userid is a number or not less than 1
   if (Number.isNaN(userid) || userid < 1) {
     res.send({ status: 0, reason: "Invalid userid" });
     return;
   }
+
   // ask sql for data
-  const _userData = [...req.userData];
-  const user = _userData.find((char) => {
-    return char.userid === userid;
-  });
-  // check user exists
-  if (!user) {
-    res.send({ status: 0, reason: "userid not found" });
+
+  const results = await asyncMySQL(
+    `SELECT name, email, password 
+      FROM users 
+        WHERE id LIKE ${userid};`
+  );
+
+  if (results.length > 0) {
+    res.send({ status: 1, results });
     return;
   }
-  res.send({ status: 1, user });
+
+  res.send({ status: 0, reason: "userid not found" });
 });
 
 //get all user actions
