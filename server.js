@@ -1,17 +1,5 @@
 const express = require("express");
 const app = express();
-// const userData = require("./users.json");
-// const userActions = require("./userActions.json");
-
-// app.use((req, res, next) => {
-//   req.userData = userData;
-//   next();
-// });
-
-// app.use((req, res, next) => {
-//   req.userActions = userActions;
-//   next();
-// });
 
 //convert the body to json
 app.use(express.json());

@@ -34,70 +34,36 @@ router.post("/user", async (req, res) => {
 
 //add a favourite
 
-router.post("/favourite", (req, res) => {
-  const { favourite, userid, movieid } = req.body;
-  let { rating } = req.body;
+router.post("/favourite", async (req, res) => {
+  const { favourite, user_id, movie_id } = req.body;
 
-  //check contents
-  if (typeof favourite !== "boolean") {
-    res.send({ status: 0, reason: "Incomplete Request" });
+  try {
+    await asyncMySQL(`INSERT INTO user_actions
+                      (user_id, movie_id, favourite, rating) 
+                        VALUES 
+                          ("${user_id}", "${movie_id}", "${favourite}", "0")`);
+    res.send({ status: 1 });
+  } catch (error) {
+    res.send({ status: 0, reason: error.sqlMessage });
     return;
   }
-
-  //check for duplicates
-  const indexOf = req.userActions.findIndex((item) => {
-    return item.userid === userid && item.movieid === movieid;
-  });
-
-  if (indexOf > -1) {
-    res.send({ status: 0, reason: "Duplicate Entry" });
-    return;
-  }
-
-  rating = 0;
-
-  req.userActions.push({
-    userid,
-    movieid,
-    favourite,
-    rating,
-  });
-
-  res.send({ status: 1 });
 });
 
 //add a rating
 
-router.post("/rating", (req, res) => {
-  const { rating, userid, movieid } = req.body;
-  let { favourite } = req.body;
+router.post("/rating", async (req, res) => {
+  const { rating, user_id, movie_id } = req.body;
 
-  //check contents
-  if (!rating || typeof rating !== "number") {
-    res.send({ status: 0, reason: "Incomplete Request" });
+  try {
+    await asyncMySQL(`INSERT INTO user_actions
+                      (user_id, movie_id, favourite, rating) 
+                        VALUES 
+                          ("${user_id}", "${movie_id}", "0", "${rating}")`);
+    res.send({ status: 1 });
+  } catch (error) {
+    res.send({ status: 0, reason: error.sqlMessage });
     return;
   }
-
-  //check for duplicates
-  const indexOf = req.userActions.findIndex((item) => {
-    return item.userid === userid && item.movieid === movieid;
-  });
-
-  if (indexOf > -1) {
-    res.send({ status: 0, reason: "Duplicate Entry" });
-    return;
-  }
-
-  favourite = false;
-
-  req.userActions.push({
-    userid,
-    movieid,
-    favourite,
-    rating,
-  });
-
-  res.send({ status: 1 });
 });
 
 module.exports = router;

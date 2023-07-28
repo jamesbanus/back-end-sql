@@ -19,14 +19,14 @@ router.delete("/user/:id", async (req, res) => {
         WHERE id LIKE ${userid};`
   );
 
-  res.send({ status: 1 });
+  //delete associated actions
+  await asyncMySQL(
+    `DELETE
+      FROM user_actions 
+        WHERE user_id LIKE ${userid};`
+  );
 
-  // for (let i = req.userActions.length - 1; i >= 0; i--) {
-  //   if (userid === req.userActions[i].userid) {
-  //     req.userActions.splice(i, 1);
-  //   }
-  // }
-  // res.send({ status: 1 });
+  res.send({ status: 1 });
 });
 
 module.exports = router;

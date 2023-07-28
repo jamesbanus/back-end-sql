@@ -42,7 +42,7 @@ router.patch("/user/:id", async (req, res) => {
 });
 
 //update favourite & rating
-router.patch("/useraction/:id/:movieid", (req, res) => {
+router.patch("/useraction/:id/:movieid", async (req, res) => {
   const userid = Number(req.params.id);
   const movieid = Number(req.params.movieid);
 
@@ -60,23 +60,24 @@ router.patch("/useraction/:id/:movieid", (req, res) => {
 
   const { favourite, rating } = req.body;
 
-  const indexOf = req.userActions.findIndex((item) => {
-    return item.userid === userid && item.movieid === movieid;
-  });
-
-  // check user or movie exists
-  if (indexOf === -1) {
-    res.send({ status: 0, reason: "userid or movieid not found" });
-    return;
-  }
+  console.log(typeof rating);
 
   //repitition for security
-  if (rating && typeof rating === "number") {
-    req.userActions[indexOf].rating = rating;
-  }
+  try {
+    if (rating) {
+      await asyncMySQL(
+        `UPDATE user_actions SET rating = "${rating}" WHERE user_id LIKE "${userid}" AND movie_id LIKE "${movieid}";`
+      );
+    }
 
-  if (typeof favourite === "boolean") {
-    req.userActions[indexOf].favourite = favourite;
+    if (favourite) {
+      await asyncMySQL(
+        `UPDATE user_actions SET favourite = "${favourite}" WHERE user_id LIKE "${userid}" AND movie_id LIKE "${movieid}";`
+      );
+    }
+  } catch (error) {
+    res.send({ status: 0, reason: error.sqlMessage });
+    return;
   }
 
   res.send({ status: 1 });

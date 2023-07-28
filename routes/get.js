@@ -27,7 +27,7 @@ router.get("/user/:id", async (req, res) => {
   // ask sql for data
 
   const results = await asyncMySQL(
-    `SELECT name, email, password 
+    `SELECT * 
       FROM users 
         WHERE id LIKE ${userid};`
   );
@@ -41,58 +41,67 @@ router.get("/user/:id", async (req, res) => {
 });
 
 //get all user actions
-// router.get("/useractions", (req, res) => {
-//   res.send({ status: 1, usersActions: req.userActions });
-// });
+router.get("/useractions", async (req, res) => {
+  const results = await asyncMySQL(
+    `SELECT *
+      FROM user_actions;`
+  );
+
+  res.send({ status: 1, results });
+});
 
 //get user actions by userid
-// router.get("/useractions/:id", (req, res) => {
-//   const userid = Number(req.params.id);
+router.get("/useractions/:id", async (req, res) => {
+  const userid = Number(req.params.id);
 
-//   //defensive checks
-//   //check userid is a number or not less than 1
-//   if (Number.isNaN(userid) || userid < 1) {
-//     res.send({ status: 0, reason: "Invalid userid" });
-//     return;
-//   }
+  //defensive checks
+  //check userid is a number or not less than 1
+  if (Number.isNaN(userid) || userid < 1) {
+    res.send({ status: 0, reason: "Invalid userid" });
+    return;
+  }
 
-//   // copy and find specific useractions by userid
-//   const _userActions = [...req.userActions];
+  // ask sql for data
 
-//   const user = _userActions.filter((item) => item.userid === userid);
+  const results = await asyncMySQL(
+    `SELECT * 
+      FROM user_actions 
+        WHERE user_id LIKE ${userid};`
+  );
 
-//   // check user exists
-//   if (user.length === 0) {
-//     res.send({ status: 0, reason: "userid not found" });
-//     return;
-//   }
+  if (results.length > 0) {
+    res.send({ status: 1, results });
+    return;
+  }
 
-//   res.send({ status: 1, user });
-// });
+  res.send({ status: 0, reason: "userid not found" });
+});
 
-//get all user actions by movieid
-// router.get("/useractionsmovie/:movieid", (req, res) => {
-//   const movieid = Number(req.params.movieid);
+// get all user actions by movieid
+router.get("/useractionsmovie/:movieid", async (req, res) => {
+  const movieid = Number(req.params.movieid);
 
-//   //defensive checks
-//   //check userid is a number or not less than 1
-//   if (Number.isNaN(movieid) || movieid < 1) {
-//     res.send({ status: 0, reason: "Invalid movieid" });
-//     return;
-//   }
+  //defensive checks
+  //check userid is a number or not less than 1
+  if (Number.isNaN(movieid) || movieid < 1) {
+    res.send({ status: 0, reason: "Invalid movieid" });
+    return;
+  }
 
-//   // copy and find specific useractions by movieid
-//   const _userActions = [...req.userActions];
+  // ask sql for data
 
-//   const movie = _userActions.filter((item) => item.movieid === movieid);
+  const results = await asyncMySQL(
+    `SELECT * 
+      FROM user_actions 
+        WHERE movie_id LIKE ${movieid};`
+  );
 
-//   // check movieid exists
-//   if (movie.length === 0) {
-//     res.send({ status: 0, reason: "movieid not found" });
-//     return;
-//   }
+  if (results.length > 0) {
+    res.send({ status: 1, results });
+    return;
+  }
 
-//   res.send({ status: 1, movie });
-// });
+  res.send({ status: 0, reason: "userid not found" });
+});
 
 module.exports = router;
