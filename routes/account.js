@@ -6,13 +6,40 @@ const {
   deleteUser,
   deleteUserActions,
   getUser,
-  updateName,
-  updateEmail,
-  updatePassword,
+  updateUser,
+  checkUserCreds,
+  addToken,
 } = require("../mysql/queries");
+const sha256 = require("sha256");
+const { genRandomString } = require("../utils/maths");
+
+//login
+
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  //hash the password
+  const sha256Password = sha256(password);
+
+  //compare versions
+  try {
+    const results = await asyncMySQL(checkUserCreds(email, sha256Password));
+    if (results.length > 0) {
+      const token = genRandomString(128);
+
+      await asyncMySQL(addToken(results[0].id, token));
+
+      res.send({ status: 1, token });
+    } else {
+      res.send({ status: 0, reason: "Bad creds" });
+    }
+  } catch (e) {
+    res.send({ status: 0, reason: e });
+  }
+});
 
 //add a user
-router.post("/", async (req, res) => {
+router.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
 
   if (
@@ -27,11 +54,16 @@ router.post("/", async (req, res) => {
   }
 
   // store user in database
+
   try {
-    const result = await asyncMySQL(addUser(name, email, password));
+    const sha256Password = sha256(password + "secret_Key");
+
+    console.log(sha256Password);
+
+    const result = await asyncMySQL(addUser(name, email, sha256Password));
     res.send({ status: 1, userID: result.insertId });
   } catch (e) {
-    res.send({ status: 0 });
+    res.send({ status: 0, error: e });
   }
 });
 
@@ -94,15 +126,15 @@ router.patch("/:id", async (req, res) => {
   //repetition for security
   try {
     if (name && typeof name === "string") {
-      await asyncMySQL(updateName(name, userid));
+      await asyncMySQL(updateUser("name", name, userid));
     }
 
     if (email && typeof email === "string") {
-      await asyncMySQL(updateEmail(email, userid));
+      await asyncMySQL(updateUser("email", email, userid));
     }
 
     if (password) {
-      await asyncMySQL(updatePassword(password, userid));
+      await asyncMySQL(updateUser("password", password, userid));
     }
   } catch (error) {
     res.send({ status: 0, reason: error.sqlMessage });

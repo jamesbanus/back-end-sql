@@ -7,8 +7,7 @@ const {
   addFavourite,
   getUserActionId,
   getUserActionMovie,
-  updateFavourite,
-  updateRating,
+  updateAction,
 } = require("../mysql/queries");
 
 //add a rating or a favourite
@@ -19,7 +18,7 @@ router.post("/", async (req, res) => {
 
   if (!favourite) {
     try {
-      await asyncMySQL(addRating(user_id, movie_id, rating));
+      await asyncMySQL(addRating(req.validatedUserId, movie_id, rating));
       res.send({ status: 1 });
     } catch (error) {
       res.send({ status: 0, reason: error.sqlMessage });
@@ -27,7 +26,7 @@ router.post("/", async (req, res) => {
     }
   } else {
     try {
-      await asyncMySQL(addFavourite(user_id, movie_id, favourite));
+      await asyncMySQL(addFavourite(req.validatedUserId, movie_id, favourite));
       res.send({ status: 1 });
     } catch (error) {
       res.send({ status: 0, reason: error.sqlMessage });
@@ -38,6 +37,8 @@ router.post("/", async (req, res) => {
 
 //get user actions by userid
 router.get("/:id", async (req, res) => {
+  console.log(req.validatedUserId);
+
   const userid = Number(req.params.id);
 
   //defensive checks
@@ -49,7 +50,7 @@ router.get("/:id", async (req, res) => {
 
   // ask sql for data
 
-  const results = await asyncMySQL(getUserActionId(userid));
+  const results = await asyncMySQL(getUserActionId(req.validatedUserId));
 
   if (results.length > 0) {
     res.send({ status: 1, results });
@@ -106,11 +107,15 @@ router.patch("/:id/:movieid", async (req, res) => {
   //repetition for security
   try {
     if (rating > -1) {
-      await asyncMySQL(updateRating(rating, userid, movieid));
+      await asyncMySQL(
+        updateAction("rating", rating, req.validatedUserId, movieid)
+      );
     }
 
     if (favourite > -1) {
-      await asyncMySQL(updateFavourite(favourite, userid, movieid));
+      await asyncMySQL(
+        updateAction("favourite", favourite, req.validatedUserId, movieid)
+      );
     }
   } catch (error) {
     res.send({ status: 0, reason: error.sqlMessage });

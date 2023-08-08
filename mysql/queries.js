@@ -1,9 +1,9 @@
 module.exports = {
-  addUser: (name, email, password) => {
+  addUser: (name, email, sha256Password) => {
     return `INSERT INTO users
     (name, email, password) 
       VALUES 
-        ("${name}", "${email}", "${password}")`;
+        ("${name}", "${email}", "${sha256Password}")`;
   },
   addRating: (user_id, movie_id, rating) => {
     return `INSERT INTO user_actions
@@ -42,19 +42,22 @@ module.exports = {
     FROM user_actions 
       WHERE movie_id LIKE ${movieid};`;
   },
-  updateName: (name, userid) => {
-    return `UPDATE users SET name = "${name}" WHERE id LIKE "${userid}";`;
+  updateUser: (key, value, userid) => {
+    return `UPDATE users SET "${key}" = "${value}" WHERE id LIKE "${userid}";`;
   },
-  updateEmail: (email, userid) => {
-    return `UPDATE users SET email = "${email}" WHERE id LIKE "${userid}";`;
+  updateAction: (key, value, userid, movieid) => {
+    return `UPDATE user_actions SET "${key}" = "${value}" WHERE user_id LIKE "${userid}" AND movie_id LIKE "${movieid}";`;
   },
-  updatePassword: (password, userid) => {
-    return `UPDATE users SET password = "${password}" WHERE id LIKE "${userid}";`;
+  checkUserCreds: (email, sha256Password) => {
+    return `SELECT id FROM users where email LIKE "${email}"
+    AND password like "${sha256Password}";`;
   },
-  updateRating: (rating, userid, movieid) => {
-    return `UPDATE user_actions SET rating = "${rating}" WHERE user_id LIKE "${userid}" AND movie_id LIKE "${movieid}";`;
+  addToken: (userid, token) => {
+    return `INSERT INTO tokens (user_id, token)
+    VALUES ("${userid}", "${token}")`;
   },
-  updateFavourite: (favourite, userid, movieid) => {
-    return `UPDATE user_actions SET favourite = "${favourite}" WHERE user_id LIKE "${userid}" AND movie_id LIKE "${movieid}";`;
+  getIDbyToken: (token) => {
+    return `SELECT user_id FROM tokens
+    WHERE token LIKE "${token}";`;
   },
 };
