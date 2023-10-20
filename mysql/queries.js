@@ -1,9 +1,9 @@
 module.exports = {
-  addUser: (name, email, sha256Password) => {
+  addUser: (email, sha256Password) => {
     return `INSERT INTO users
-    (name, email, password) 
+    (email, password) 
       VALUES 
-        ("${name}", "${email}", "${sha256Password}")`;
+        ("${email}", "${sha256Password}")`;
   },
   addRating: (user_id, movie_id, rating) => {
     return `INSERT INTO user_actions
@@ -49,8 +49,8 @@ module.exports = {
     return `UPDATE user_actions SET "${key}" = "${value}" WHERE user_id LIKE "${userid}" AND movie_id LIKE "${movieid}";`;
   },
   checkUserCreds: (email, sha256Password) => {
-    return `SELECT id FROM users where email LIKE "${email}"
-    AND password like "${sha256Password}";`;
+    return `SELECT id FROM users where email = "${email}"
+    AND password = "${sha256Password}";`;
   },
   addToken: (userid, token) => {
     return `INSERT INTO tokens (user_id, token)

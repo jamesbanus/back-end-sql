@@ -12,7 +12,7 @@ app.use(express.json());
 app.use("/useractions", checkToken, require("./routes/useractions"));
 app.use("/account", require("./routes/account"));
 
-const port = process.env.Port || 6001;
+const port = process.env.Port || 4000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

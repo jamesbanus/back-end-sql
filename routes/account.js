@@ -17,13 +17,15 @@ const { genRandomString } = require("../utils/maths");
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
+  console.log(email, password);
 
   //hash the password
-  const sha256Password = sha256(password);
+  const sha256Password = sha256(password + "secret_Key");
 
   //compare versions
   try {
     const results = await asyncMySQL(checkUserCreds(email, sha256Password));
+    console.log(results);
     if (results.length > 0) {
       const token = genRandomString(128);
 
@@ -40,15 +42,11 @@ router.post("/login", async (req, res) => {
 
 //add a user
 router.post("/register", async (req, res) => {
-  const { name, email, password } = req.body;
+  const { email, password } = req.body;
 
-  if (
-    !name ||
-    !email ||
-    !password ||
-    typeof name !== "string" ||
-    typeof email !== "string"
-  ) {
+  console.log(email, password);
+
+  if (!email || !password || typeof email !== "string") {
     res.send({ status: 0, reason: "Incomplete Request" });
     return;
   }
@@ -58,12 +56,10 @@ router.post("/register", async (req, res) => {
   try {
     const sha256Password = sha256(password + "secret_Key");
 
-    console.log(sha256Password);
-
-    const result = await asyncMySQL(addUser(name, email, sha256Password));
+    const result = await asyncMySQL(addUser(email, sha256Password));
     res.send({ status: 1, userID: result.insertId });
   } catch (e) {
-    res.send({ status: 0, error: e });
+    res.send({ status: 2, error: e });
   }
 });
 
