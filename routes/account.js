@@ -14,10 +14,10 @@ const sha256 = require("sha256");
 const { genRandomString } = require("../utils/maths");
 
 //login
-
 router.post("/login", async (req, res) => {
+  // console.log("running");
   const { email, password } = req.body;
-  console.log(email, password);
+  // console.log(email, password);
 
   //hash the password
   const sha256Password = sha256(password + "secret_Key");
@@ -25,7 +25,7 @@ router.post("/login", async (req, res) => {
   //compare versions
   try {
     const results = await asyncMySQL(checkUserCreds(email, sha256Password));
-    console.log(results);
+    // console.log(results);
     if (results.length > 0) {
       const token = genRandomString(128);
 

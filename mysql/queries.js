@@ -20,33 +20,38 @@ module.exports = {
   deleteUser: (userid) => {
     return `DELETE
         FROM users 
-          WHERE id LIKE ${userid};`;
+          WHERE id = ${userid};`;
   },
   deleteUserActions: (userid) => {
     return `DELETE
     FROM user_actions 
-      WHERE user_id LIKE ${userid};`;
+      WHERE user_id = ${userid};`;
   },
   getUser: (userid) => {
     return `SELECT * 
     FROM users 
-      WHERE id LIKE ${userid};`;
+      WHERE id = ${userid};`;
   },
   getUserActionId: (userid) => {
     return `SELECT * 
     FROM user_actions 
-      WHERE user_id LIKE ${userid};`;
+      WHERE user_id = ${userid};`;
   },
   getUserActionMovie: (movieid) => {
     return `SELECT * 
     FROM user_actions 
-      WHERE movie_id LIKE ${movieid};`;
+      WHERE movie_id = ${movieid};`;
+  },
+  getUserActionAllIDs: (userid, movieid) => {
+    return `SELECT * 
+    FROM user_actions 
+      WHERE user_id = ${userid} AND movie_id = ${movieid};`;
   },
   updateUser: (key, value, userid) => {
-    return `UPDATE users SET "${key}" = "${value}" WHERE id LIKE "${userid}";`;
+    return `UPDATE users SET "${key}" = "${value}" WHERE id = "${userid}";`;
   },
   updateAction: (key, value, userid, movieid) => {
-    return `UPDATE user_actions SET "${key}" = "${value}" WHERE user_id LIKE "${userid}" AND movie_id LIKE "${movieid}";`;
+    return `UPDATE user_actions SET "${key}" = "${value}" WHERE user_id = "${userid}" AND movie_id = "${movieid}";`;
   },
   checkUserCreds: (email, sha256Password) => {
     return `SELECT id FROM users where email = "${email}"
@@ -58,6 +63,6 @@ module.exports = {
   },
   getIDbyToken: (token) => {
     return `SELECT user_id FROM tokens
-    WHERE token LIKE "${token}";`;
+    WHERE token = "${token}";`;
   },
 };

@@ -8,11 +8,12 @@ const {
   getUserActionId,
   getUserActionMovie,
   updateAction,
+  getUserActionAllIDs,
 } = require("../mysql/queries");
 
 //add a rating or a favourite
-router.post("/", async (req, res) => {
-  const { user_id, movie_id, favourite, rating } = req.body;
+router.post("/add", async (req, res) => {
+  const { movie_id, favourite, rating } = req.body;
 
   console.log(favourite);
 
@@ -35,11 +36,39 @@ router.post("/", async (req, res) => {
   }
 });
 
+//get user actions by userid & movieid
+router.get("/actions/:movieid", async (req, res) => {
+  const movieid = req.params.movieid;
+
+  console.log(movieid, req.validatedUserId);
+
+  // defensive checks
+  // check movieid is a number or not less than 1
+  if (Number.isNaN(movieid) || movieid < 1) {
+    res.send({ status: 0, reason: "Invalid movieid" });
+    return;
+  }
+
+  // ask sql for data
+
+  const results = await asyncMySQL(
+    getUserActionAllIDs(req.validatedUserId, movieid)
+  );
+
+  if (results.length > 0) {
+    res.send({ status: 1, results });
+    return;
+  }
+
+  res.send({ status: 0, reason: "userid not found" });
+});
+
 //get user actions by userid
 router.get("/:id", async (req, res) => {
   console.log(req.validatedUserId);
 
   const userid = Number(req.params.id);
+  console.log(userid);
 
   //defensive checks
   //check userid is a number or not less than 1
