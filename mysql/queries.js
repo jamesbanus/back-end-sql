@@ -47,11 +47,21 @@ module.exports = {
     FROM user_actions 
       WHERE user_id = ${userid} AND movie_id = ${movieid};`;
   },
+  checkFavourite: (userid, movieid) => {
+    return `SELECT * 
+    FROM user_actions 
+      WHERE user_id = ${userid} AND movie_id = ${movieid} AND favourite = 1;`;
+  },
+  checkRating: (userid, movieid) => {
+    return `SELECT * 
+    FROM user_actions 
+      WHERE user_id = ${userid} AND movie_id = ${movieid} AND rating > 0;`;
+  },
   updateUser: (key, value, userid) => {
-    return `UPDATE users SET "${key}" = "${value}" WHERE id = "${userid}";`;
+    return `UPDATE users SET ${key} = ${value} WHERE id = ${userid};`;
   },
   updateAction: (key, value, userid, movieid) => {
-    return `UPDATE user_actions SET "${key}" = "${value}" WHERE user_id = "${userid}" AND movie_id = "${movieid}";`;
+    return `UPDATE user_actions SET ${key} = ${value} WHERE user_id = ${userid} AND movie_id = ${movieid};`;
   },
   checkUserCreds: (email, sha256Password) => {
     return `SELECT id FROM users where email = "${email}"

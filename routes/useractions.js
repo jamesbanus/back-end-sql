@@ -9,16 +9,19 @@ const {
   getUserActionMovie,
   updateAction,
   getUserActionAllIDs,
+  checkFavourite,
+  checkRating,
 } = require("../mysql/queries");
 
 //add a rating or a favourite
 router.post("/add", async (req, res) => {
   const { movie_id, favourite, rating } = req.body;
 
-  console.log(favourite);
+  console.log("1", favourite);
 
   if (!favourite) {
     try {
+      console.log("add rating");
       await asyncMySQL(addRating(req.validatedUserId, movie_id, rating));
       res.send({ status: 1 });
     } catch (error) {
@@ -27,6 +30,7 @@ router.post("/add", async (req, res) => {
     }
   } else {
     try {
+      console.log("add favourite");
       await asyncMySQL(addFavourite(req.validatedUserId, movie_id, favourite));
       res.send({ status: 1 });
     } catch (error) {
@@ -40,7 +44,7 @@ router.post("/add", async (req, res) => {
 router.get("/actions/:movieid", async (req, res) => {
   const movieid = req.params.movieid;
 
-  console.log(movieid, req.validatedUserId);
+  console.log("2", movieid, req.validatedUserId);
 
   // defensive checks
   // check movieid is a number or not less than 1
@@ -113,15 +117,15 @@ router.get("/movie/:movieid", async (req, res) => {
 });
 
 //update favourite & rating
-router.patch("/:id/:movieid", async (req, res) => {
-  const userid = Number(req.params.id);
+router.patch("/update/:movieid", async (req, res) => {
+  // const userid = Number(req.params.id);
   const movieid = Number(req.params.movieid);
 
   //check userid is a number
-  if (Number.isNaN(userid) || userid < 1) {
-    res.send({ status: 0, reason: "Invalid userid" });
-    return;
-  }
+  // if (Number.isNaN(userid) || userid < 1) {
+  //   res.send({ status: 0, reason: "Invalid userid" });
+  //   return;
+  // }
 
   //check movieid is a number
   if (Number.isNaN(movieid) || movieid < 1) {
@@ -132,6 +136,7 @@ router.patch("/:id/:movieid", async (req, res) => {
   const { favourite, rating } = req.body;
 
   console.log(typeof rating);
+  console.log(req.body);
 
   //repetition for security
   try {
@@ -152,6 +157,58 @@ router.patch("/:id/:movieid", async (req, res) => {
   }
 
   res.send({ status: 1 });
+});
+
+//check if user has favourited a film
+router.get("/checkFavourite/:movieid", async (req, res) => {
+  const movieid = req.params.movieid;
+
+  console.log("3", movieid, req.validatedUserId);
+
+  // defensive checks
+  // check movieid is a number or not less than 1
+  if (Number.isNaN(movieid) || movieid < 1) {
+    res.send({ status: 0, reason: "Invalid movieid" });
+    return;
+  }
+
+  // ask sql for data
+
+  const results = await asyncMySQL(
+    checkFavourite(req.validatedUserId, movieid)
+  );
+
+  if (results.length > 0) {
+    res.send({ status: 1, results });
+    return;
+  }
+
+  res.send({ status: 0, reason: "userid not found" });
+});
+
+//check if user has rated a film
+router.get("/checkRating/:movieid", async (req, res) => {
+  const movieid = req.params.movieid;
+
+  console.log("4", movieid, req.validatedUserId);
+
+  // defensive checks
+  // check movieid is a number or not less than 1
+  if (Number.isNaN(movieid) || movieid < 1) {
+    res.send({ status: 0, reason: "Invalid movieid" });
+    return;
+  }
+
+  // ask sql for data
+
+  const results = await asyncMySQL(checkRating(req.validatedUserId, movieid));
+
+  if (results.length > 0) {
+    res.send({ status: 1, results });
+    return;
+  }
+
+  res.send({ status: 0, reason: "userid not found" });
 });
 
 module.exports = router;
