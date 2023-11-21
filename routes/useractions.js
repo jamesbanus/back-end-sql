@@ -11,6 +11,7 @@ const {
   getUserActionAllIDs,
   checkFavourite,
   checkRating,
+  returnUserFavourites,
 } = require("../mysql/queries");
 
 //add a rating or a favourite
@@ -67,12 +68,12 @@ router.get("/actions/:movieid", async (req, res) => {
   res.send({ status: 0, reason: "userid not found" });
 });
 
-//get user actions by userid
-router.get("/:id", async (req, res) => {
-  console.log(req.validatedUserId);
+//get all user actions by userid
+router.get("allUserActions/:id", async (req, res) => {
+  console.log("3", req.validatedUserId);
 
   const userid = Number(req.params.id);
-  console.log(userid);
+  // console.log(userid);
 
   //defensive checks
   //check userid is a number or not less than 1
@@ -95,6 +96,7 @@ router.get("/:id", async (req, res) => {
 
 // get all user actions by movieid
 router.get("/movie/:movieid", async (req, res) => {
+  console.log("4");
   const movieid = Number(req.params.movieid);
 
   //defensive checks
@@ -118,6 +120,7 @@ router.get("/movie/:movieid", async (req, res) => {
 
 //update favourite & rating
 router.patch("/update/:movieid", async (req, res) => {
+  console.log("5");
   // const userid = Number(req.params.id);
   const movieid = Number(req.params.movieid);
 
@@ -135,8 +138,8 @@ router.patch("/update/:movieid", async (req, res) => {
 
   const { favourite, rating } = req.body;
 
-  console.log(typeof rating);
-  console.log(req.body);
+  // console.log(typeof rating);
+  // console.log(req.body);
 
   //repetition for security
   try {
@@ -163,7 +166,7 @@ router.patch("/update/:movieid", async (req, res) => {
 router.get("/checkFavourite/:movieid", async (req, res) => {
   const movieid = req.params.movieid;
 
-  console.log("3", movieid, req.validatedUserId);
+  console.log("6", movieid, req.validatedUserId);
 
   // defensive checks
   // check movieid is a number or not less than 1
@@ -190,7 +193,7 @@ router.get("/checkFavourite/:movieid", async (req, res) => {
 router.get("/checkRating/:movieid", async (req, res) => {
   const movieid = req.params.movieid;
 
-  console.log("4", movieid, req.validatedUserId);
+  console.log("7", movieid, req.validatedUserId);
 
   // defensive checks
   // check movieid is a number or not less than 1
@@ -202,6 +205,21 @@ router.get("/checkRating/:movieid", async (req, res) => {
   // ask sql for data
 
   const results = await asyncMySQL(checkRating(req.validatedUserId, movieid));
+
+  if (results.length > 0) {
+    res.send({ status: 1, results });
+    return;
+  }
+
+  res.send({ status: 0, reason: "userid not found" });
+});
+
+//return all of the users favourites
+router.get("/returnFavourites", async (req, res) => {
+  console.log("8");
+  // ask sql for data
+
+  const results = await asyncMySQL(returnUserFavourites(req.validatedUserId));
 
   if (results.length > 0) {
     res.send({ status: 1, results });

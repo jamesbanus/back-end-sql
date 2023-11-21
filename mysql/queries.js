@@ -75,4 +75,9 @@ module.exports = {
     return `SELECT user_id FROM tokens
     WHERE token = "${token}";`;
   },
+  returnUserFavourites: (userid) => {
+    return `SELECT movie_id 
+    FROM user_actions 
+      WHERE user_id = ${userid} AND favourite = 1;`;
+  },
 };
