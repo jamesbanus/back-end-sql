@@ -9,6 +9,7 @@ const {
   updateUser,
   checkUserCreds,
   addToken,
+  returnAverageRating,
 } = require("../mysql/queries");
 const sha256 = require("sha256");
 const { genRandomString } = require("../utils/maths");
@@ -138,6 +139,22 @@ router.patch("/:id", async (req, res) => {
   }
 
   res.send({ status: 1 });
+});
+
+//return avgRating for a movie
+router.get("/returnAvgRating/:movieid", async (req, res) => {
+  const movieid = req.params.movieid;
+  console.log("9");
+  // ask sql for data
+
+  const results = await asyncMySQL(returnAverageRating(movieid));
+
+  if (results.length > 0) {
+    res.send({ status: 1, results });
+    return;
+  }
+
+  res.send({ status: 0, reason: "movieid not found" });
 });
 
 module.exports = router;
