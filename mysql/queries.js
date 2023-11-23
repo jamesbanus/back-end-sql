@@ -80,4 +80,9 @@ module.exports = {
     FROM user_actions 
       WHERE user_id = ${userid} AND favourite = 1;`;
   },
+  returnAverageRating: (movieid) => {
+    return `SELECT ROUND(SUM(rating) / COUNT(rating) / 5 * 100,0) as avgRating
+    FROM user_actions 
+      WHERE movie_id = ${movieid} AND rating > 0;`;
+  },
 };
