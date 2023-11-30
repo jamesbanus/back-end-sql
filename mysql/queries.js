@@ -85,4 +85,9 @@ module.exports = {
     FROM user_actions 
       WHERE movie_id = ${movieid} AND rating > 0;`;
   },
+  returnAllAverageRating: () => {
+    return `SELECT movie_id, ROUND(SUM(rating) / COUNT(rating) / 5 * 100,0) as avgRating
+    FROM user_actions 
+      WHERE rating > 0 GROUP BY movie_id;`;
+  },
 };

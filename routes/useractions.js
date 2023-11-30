@@ -13,6 +13,7 @@ const {
   checkRating,
   returnUserFavourites,
   returnAverageRating,
+  returnAllAverageRating,
 } = require("../mysql/queries");
 
 //add a rating or a favourite
@@ -244,6 +245,21 @@ router.get("/returnAvgRating/:movieid", async (req, res) => {
   }
 
   res.send({ status: 0, reason: "movieid not found" });
+});
+
+//return avgRating for a movie
+router.get("/returnAllAvgRating", async (req, res) => {
+  console.log("10");
+  // ask sql for data
+
+  const results = await asyncMySQL(returnAllAverageRating());
+
+  if (results.length > 0) {
+    res.send({ status: 1, results });
+    return;
+  }
+
+  res.send({ status: 0, reason: "nothing found" });
 });
 
 module.exports = router;

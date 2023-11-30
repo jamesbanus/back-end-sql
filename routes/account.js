@@ -10,13 +10,14 @@ const {
   checkUserCreds,
   addToken,
   returnAverageRating,
+  returnAllAverageRating,
 } = require("../mysql/queries");
 const sha256 = require("sha256");
 const { genRandomString } = require("../utils/maths");
 
 //login
 router.post("/login", async (req, res) => {
-  // console.log("running");
+  console.log("account 1");
   const { email, password } = req.body;
   // console.log(email, password);
 
@@ -43,6 +44,7 @@ router.post("/login", async (req, res) => {
 
 //add a user
 router.post("/register", async (req, res) => {
+  console.log("account 2");
   const { email, password } = req.body;
 
   console.log(email, password);
@@ -65,7 +67,8 @@ router.post("/register", async (req, res) => {
 });
 
 // delete a user and their actions
-router.delete("/:id", async (req, res) => {
+router.delete("/delete/:id", async (req, res) => {
+  console.log("account 3");
   const userid = Number(req.params.id);
 
   //defensive checks
@@ -85,7 +88,8 @@ router.delete("/:id", async (req, res) => {
 });
 
 //get user by id
-router.get("/:id", async (req, res) => {
+router.get("/get/:id", async (req, res) => {
+  console.log("account 4");
   const userid = Number(req.params.id);
 
   //defensive checks
@@ -109,7 +113,8 @@ router.get("/:id", async (req, res) => {
 });
 
 //update user
-router.patch("/:id", async (req, res) => {
+router.patch("/patch/:id", async (req, res) => {
+  console.log("account 5");
   const userid = Number(req.params.id);
 
   //check userid is a number
@@ -143,8 +148,9 @@ router.patch("/:id", async (req, res) => {
 
 //return avgRating for a movie
 router.get("/returnAvgRating/:movieid", async (req, res) => {
+  console.log("account 6");
   const movieid = req.params.movieid;
-  console.log("9");
+
   // ask sql for data
 
   const results = await asyncMySQL(returnAverageRating(movieid));
@@ -155,6 +161,21 @@ router.get("/returnAvgRating/:movieid", async (req, res) => {
   }
 
   res.send({ status: 0, reason: "movieid not found" });
+});
+
+//return all avgRating for movies
+router.get("/returnAllAvgRating", async (req, res) => {
+  console.log("account 7");
+  // ask sql for data
+
+  const results = await asyncMySQL(returnAllAverageRating());
+
+  if (results.length > 0) {
+    res.send({ status: 1, results });
+    return;
+  }
+
+  res.send({ status: 0, reason: "nothing found" });
 });
 
 module.exports = router;
