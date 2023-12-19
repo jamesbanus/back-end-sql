@@ -60,7 +60,12 @@ router.post("/register", async (req, res) => {
     const sha256Password = sha256(password + "secret_Key");
 
     const result = await asyncMySQL(addUser(email, sha256Password));
-    res.send({ status: 1, userID: result.insertId });
+
+    const token = genRandomString(128);
+
+    await asyncMySQL(addToken(result.insertId, token));
+
+    res.send({ status: 1, userID: result.insertId, token });
   } catch (e) {
     res.send({ status: 2, error: e });
   }
