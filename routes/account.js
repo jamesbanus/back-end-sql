@@ -11,6 +11,7 @@ const {
   addToken,
   returnAverageRating,
   returnAllAverageRating,
+  deleteUserTokens,
 } = require("../mysql/queries");
 const sha256 = require("sha256");
 const { genRandomString } = require("../utils/maths");
@@ -46,8 +47,6 @@ router.post("/login", async (req, res) => {
 router.post("/register", async (req, res) => {
   console.log("account 2");
   const { email, password } = req.body;
-
-  console.log(email, password);
 
   if (!email || !password || typeof email !== "string") {
     res.send({ status: 0, reason: "Incomplete Request" });
@@ -88,6 +87,7 @@ router.delete("/delete/:id", async (req, res) => {
 
   //delete associated actions
   await asyncMySQL(deleteUserActions(userid));
+  await asyncMySQL(deleteUserTokens(userid));
 
   res.send({ status: 1 });
 });

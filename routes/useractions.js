@@ -14,6 +14,9 @@ const {
   returnUserFavourites,
   returnAverageRating,
   returnAllAverageRating,
+  deleteUser,
+  deleteUserActions,
+  deleteUserTokens,
 } = require("../mysql/queries");
 
 //add a rating or a favourite
@@ -260,6 +263,20 @@ router.get("/returnAllAvgRating", async (req, res) => {
   }
 
   res.send({ status: 0, reason: "nothing found" });
+});
+
+// delete a user and their actions
+router.delete("/delete", async (req, res) => {
+  console.log("11");
+
+  // delete user
+  await asyncMySQL(deleteUser(req.validatedUserId));
+
+  //delete associated actions
+  await asyncMySQL(deleteUserActions(req.validatedUserId));
+  await asyncMySQL(deleteUserTokens(req.validatedUserId));
+
+  res.send({ status: 1 });
 });
 
 module.exports = router;

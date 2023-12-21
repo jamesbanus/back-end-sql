@@ -27,6 +27,11 @@ module.exports = {
     FROM user_actions 
       WHERE user_id = ${userid};`;
   },
+  deleteUserTokens: (userid) => {
+    return `DELETE
+    FROM tokens 
+      WHERE user_id = ${userid};`;
+  },
   getUser: (userid) => {
     return `SELECT * 
     FROM users 
