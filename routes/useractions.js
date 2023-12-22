@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { genRandomString } = require("../utils/maths");
 const asyncMySQL = require("../mysql/connection");
+
 const {
   addRating,
   addFavourite,
@@ -17,6 +18,8 @@ const {
   deleteUser,
   deleteUserActions,
   deleteUserTokens,
+  checkUserPassword,
+  updateUser,
 } = require("../mysql/queries");
 
 //add a rating or a favourite
@@ -267,16 +270,52 @@ router.get("/returnAllAvgRating", async (req, res) => {
 
 // delete a user and their actions
 router.delete("/delete", async (req, res) => {
-  console.log("11");
+  console.log("11", req.hashPassword);
 
-  // delete user
-  await asyncMySQL(deleteUser(req.validatedUserId));
+  const results = await asyncMySQL(
+    checkUserPassword(req.validatedUserId, req.hashPassword)
+  );
 
-  //delete associated actions
-  await asyncMySQL(deleteUserActions(req.validatedUserId));
-  await asyncMySQL(deleteUserTokens(req.validatedUserId));
+  if (results.length > 0) {
+    try {
+      // delete user
+      await asyncMySQL(deleteUser(req.validatedUserId));
 
-  res.send({ status: 1 });
+      //delete associated actions
+      await asyncMySQL(deleteUserActions(req.validatedUserId));
+      await asyncMySQL(deleteUserTokens(req.validatedUserId));
+
+      res.send({ status: 1 });
+    } catch (error) {
+      res.send({ status: 0, reason: error.sqlMessage });
+      return;
+    }
+  } else {
+    res.send({ status: 0 });
+  }
+});
+
+//update user
+router.patch("/changePassword", async (req, res) => {
+  console.log("12");
+
+  const results = await asyncMySQL(
+    checkUserPassword(req.validatedUserId, req.hashPassword)
+  );
+
+  if (results.length > 0) {
+    try {
+      await asyncMySQL(
+        updateUser(`password`, req.hashNewPassword, req.validatedUserId)
+      );
+      res.send({ status: 1 });
+    } catch (error) {
+      res.send({ status: 0, reason: error.sqlMessage });
+      return;
+    }
+  } else {
+    res.send({ status: 0 });
+  }
 });
 
 module.exports = router;
